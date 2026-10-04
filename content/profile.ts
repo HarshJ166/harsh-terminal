@@ -1,5 +1,24 @@
 export const site = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://harsh-terminal.vercel.app",
+  title: "Harsh Jajal | Software Engineer, Go, Kafka and Next.js",
+  description:
+    "Harsh Jajal is a software engineer in Mumbai building event-driven backends in Go and Kafka and full-stack products in Next.js and React. Currently at NyayAssist.",
+  keywords: [
+    "Harsh Jajal",
+    "Harsh Dinesh Jajal",
+    "software engineer",
+    "backend engineer",
+    "full-stack developer",
+    "Go",
+    "Kafka",
+    "event-driven systems",
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Solidity",
+    "Mumbai",
+    "NyayAssist",
+  ],
 };
 
 export const profile = {
@@ -10,6 +29,10 @@ export const profile = {
   summary:
     "Software engineer at NyayAssist. I build event-driven systems in Go and Kafka, and the interfaces that sit on top.",
   email: "jajalharsh268@gmail.com",
+  location: { city: "Mumbai", country: "IN" },
+  education: "Shah and Anchor Kutchhi Engineering College",
+  // Paste your Calendly link here. "Book a call" buttons stay hidden while this is empty.
+  calendly: "",
   github: "HarshJ166",
   links: [
     { label: "GitHub", href: "https://github.com/HarshJ166" },

@@ -2,6 +2,7 @@ export type LogRecord = {
   offset: number;
   ts: string;
   key: string;
+  tag: string;
   title: string;
   org: string;
   payload: [string, string][];
@@ -16,6 +17,7 @@ export const log: LogRecord[] = [
     key: "education",
     title: "B.E. Information Technology",
     org: "Shah and Anchor Kutchhi Engineering College",
+    tag: "sakec",
     payload: [["cgpa", "8.71 / 10"]],
   },
   {
@@ -24,6 +26,7 @@ export const log: LogRecord[] = [
     key: "role",
     title: "Application Developer",
     org: "Bot2Do Technologies",
+    tag: "bot2do",
     payload: [
       ["built", "ScaleSecure, a security and load testing platform on ZAP and k6"],
       ["result", "25% faster page loads across React and Node.js web apps"],
@@ -36,6 +39,7 @@ export const log: LogRecord[] = [
     key: "role",
     title: "AI Developer",
     org: "Intel Unnati",
+    tag: "intel",
     payload: [
       ["built", "Edge-AI parking management with real-time vehicle detection"],
       ["result", "95% detection accuracy, 40% lower latency on constrained hardware"],
@@ -48,6 +52,7 @@ export const log: LogRecord[] = [
     key: "role",
     title: "Software Developer",
     org: "Territorial Army",
+    tag: "army",
     payload: [
       ["built", "A reworked desktop GUI with digital signatures, OCR and model management"],
       ["tuned", "Database connection handling"],
@@ -59,6 +64,7 @@ export const log: LogRecord[] = [
     key: "role",
     title: "Software Engineer",
     org: "CypherSol Fintech India",
+    tag: "cypher",
     payload: [
       ["built", "Python GUI for bank statement analysis with interactive charts"],
       ["result", "Statement processing time down 40%"],
@@ -73,6 +79,7 @@ export const log: LogRecord[] = [
     key: "role",
     title: "Software Engineer",
     org: "NyayAssist",
+    tag: "nyaya",
     current: true,
     payload: [
       ["domain", "Legal-tech platform"],

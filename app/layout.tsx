@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Sans_Condensed } from "next/font/google";
 import localFont from "next/font/local";
-import { ThemeProvider } from "next-themes";
 import { MotionProvider } from "@/components/ui/MotionProvider";
+import { SmoothScroll } from "@/components/ui/SmoothScroll";
 import { profile, site } from "@/content/profile";
 import "./globals.css";
 
@@ -18,39 +18,89 @@ const commit = localFont({
   variable: "--font-commit",
 });
 
-const title = `${profile.name}, ${profile.role}`;
-
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title,
-  description: profile.summary,
-  openGraph: { title, description: profile.summary, url: "/", type: "profile" },
-  twitter: { card: "summary_large_image", title, description: profile.summary },
+  title: { default: site.title, template: `%s | ${profile.name}` },
+  description: site.description,
+  keywords: site.keywords,
+  authors: [{ name: profile.fullName, url: site.url }],
+  creator: profile.fullName,
+  alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
+  openGraph: {
+    type: "profile",
+    url: "/",
+    siteName: profile.name,
+    title: site.title,
+    description: site.description,
+    locale: "en_IN",
+    firstName: "Harsh",
+    lastName: "Jajal",
+    username: profile.github,
+  },
+  twitter: { card: "summary_large_image", title: site.title, description: site.description },
+  // Set GOOGLE_SITE_VERIFICATION in Vercel to verify the site in Google Search Console.
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
+  category: "technology",
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#e8e6df" },
-    { media: "(prefers-color-scheme: dark)", color: "#0e0f0c" },
-  ],
+  themeColor: "#0e0f0c",
+  colorScheme: "dark",
 };
 
+// ProfilePage + Person is the structured data Google uses for personal profile pages.
+const person = `${site.url}/#person`;
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  name: profile.fullName,
-  jobTitle: profile.role,
-  worksFor: { "@type": "Organization", name: profile.company },
-  email: `mailto:${profile.email}`,
-  url: site.url,
-  sameAs: profile.links.map((l) => l.href),
+  "@graph": [
+    {
+      "@type": "ProfilePage",
+      "@id": `${site.url}/#profile`,
+      url: site.url,
+      name: site.title,
+      description: site.description,
+      inLanguage: "en",
+      dateModified: new Date().toISOString(),
+      mainEntity: { "@id": person },
+      isPartOf: { "@id": `${site.url}/#website` },
+    },
+    {
+      "@type": "Person",
+      "@id": person,
+      name: profile.fullName,
+      alternateName: profile.name,
+      givenName: "Harsh",
+      familyName: "Jajal",
+      jobTitle: profile.role,
+      description: site.description,
+      url: site.url,
+      image: `${site.url}/opengraph-image`,
+      email: `mailto:${profile.email}`,
+      worksFor: { "@type": "Organization", name: profile.company },
+      alumniOf: { "@type": "CollegeOrUniversity", name: profile.education },
+      address: { "@type": "PostalAddress", addressLocality: profile.location.city, addressCountry: profile.location.country },
+      knowsAbout: ["Go", "Apache Kafka", "Event-driven architecture", "Distributed systems", "Next.js", "React", "TypeScript", "Node.js", "PostgreSQL", "Solidity", "Ethereum", "Machine learning"],
+      sameAs: profile.links.map((l) => l.href),
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${site.url}/#website`,
+      url: site.url,
+      name: profile.name,
+      publisher: { "@id": person },
+    },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      suppressHydrationWarning
       className={`${plex.variable} ${plexCond.variable} ${commit.variable}`}
     >
       <body>
@@ -58,9 +108,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <MotionProvider>{children}</MotionProvider>
-        </ThemeProvider>
+        <SmoothScroll />
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );

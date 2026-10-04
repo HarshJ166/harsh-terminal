@@ -2,8 +2,8 @@ import { principles, stack } from "@/content/profile";
 
 export function Principles() {
   return (
-    <section aria-labelledby="principles" className="mx-auto max-w-[1280px] px-4 py-24 md:px-8 md:py-32">
-      <h2 id="principles" className="font-mono text-xs text-muted">
+    <section id="principles" aria-labelledby="principles-h" className="mx-auto max-w-[1280px] px-4 py-24 md:px-8 md:py-32">
+      <h2 id="principles-h" className="font-display text-3xl font-semibold tracking-tight">
         How I work
       </h2>
       <ul className="mt-10 space-y-10 md:space-y-14">

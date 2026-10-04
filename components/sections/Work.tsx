@@ -83,7 +83,7 @@ export function Work() {
       </div>
 
       <p className="mt-24 flex flex-col gap-1 border-t border-rule pt-4 text-muted md:flex-row md:items-center md:gap-10">
-        <span className="font-mono text-xs">also built</span>
+        <span className="text-fg">Also built:</span>
         {alsoBuilt.map((a) => (
           <span key={a.name}>
             {a.href ? (

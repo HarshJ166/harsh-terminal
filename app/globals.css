@@ -1,33 +1,15 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
-/* Drafting paper (light) and ink (dark). One accent: amber. */
+/* Ink, paper-white type, one accent: amber. Dark only. */
 :root {
-  --bg: #e8e6df;
-  --fg: #0e0f0c;
-  --muted: #5e635a;
-  --rule: #c9c6bc;
-  --plate: #e2e0d8;
-  --accent: #ffb000;
-  --accent-ink: #8a5a00; /* amber text, marks and focus on paper need more contrast */
-  /* Contribution ramp: each step darker than the last on paper. */
-  --heat-0: rgb(14 15 12 / 0.07);
-  --heat-1: #e9d29c;
-  --heat-2: #f2b93a;
-  --heat-3: #c98a00;
-  --heat-4: #8a5a00;
-  color-scheme: light;
-}
-
-[data-theme="dark"] {
   --bg: #0e0f0c;
   --fg: #e8e6df;
   --muted: #8a8f84;
   --rule: #2a2c27;
   --plate: #161814;
+  --accent: #ffb000;
   --accent-ink: #ffb000;
-  /* On ink the ramp brightens instead. */
   --heat-0: rgb(232 230 223 / 0.07);
   --heat-1: #5c4300;
   --heat-2: #9a6d00;
@@ -51,7 +33,6 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     scroll-padding-top: 5rem;
   }
   body {
@@ -63,19 +44,28 @@
     color: #0e0f0c;
   }
   :focus-visible {
-    outline: 2px solid var(--accent-ink);
+    outline: 2px solid var(--accent);
     outline-offset: 3px;
   }
 }
 
-/* Hero name: types on in discrete ticks, one per glyph. */
-@keyframes tick-in {
-  from { clip-path: inset(-10% 100% -30% -5%); }
-  to { clip-path: inset(-10% -5% -30% -5%); }
+/* Hero name: letters rise in one after another. Pure CSS, so it plays before hydration. */
+@keyframes letter-in {
+  from { opacity: 0; transform: translateY(0.35em); }
 }
-.tick-in {
-  animation: tick-in var(--tick-dur, 0.9s) steps(var(--ticks, 12), end) both;
-  animation-delay: var(--tick-delay, 0s);
+.letter {
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .letter {
+    animation: letter-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: calc(0.15s + var(--i) * 45ms);
+  }
+  .letter:hover {
+    transform: translateY(-0.08em);
+    color: var(--accent);
+  }
 }
 
 /* Log records stream in as they scroll into view (CSS only, visible without JS or support).
@@ -96,9 +86,4 @@
     animation-timeline: auto;
     animation-delay: calc(var(--i) * 80ms);
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .tick-in { animation: none; }
 }

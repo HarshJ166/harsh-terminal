@@ -2,6 +2,7 @@
 
 import { Fragment, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { ArrowCounterClockwise } from "@phosphor-icons/react";
+import { useLenis } from "lenis/react";
 import type { LogRecord } from "@/content/log";
 
 const hex = (n: number) => `0x${n.toString(16).padStart(2, "0")}`;
@@ -13,14 +14,15 @@ export function LogStream({ records }: { records: LogRecord[] }) {
   const [run, setRun] = useState(0);
   const [active, setActive] = useState(0);
   const listRef = useRef<HTMLOListElement>(null);
+  const lenis = useLenis();
 
   const focusAt = (i: number) => {
     const el = listRef.current?.querySelectorAll<HTMLElement>("[data-record]")[i];
     if (!el) return;
     setActive(i);
     el.focus({ preventScroll: true });
-    const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
-    el.scrollIntoView({ block: "center", behavior: smooth ? "smooth" : "auto" });
+    if (lenis) lenis.scrollTo(el, { offset: -(innerHeight - el.offsetHeight) / 2 });
+    else el.scrollIntoView({ block: "center" });
   };
 
   // j / k (and arrows) only act while focus is inside the log: WCAG 2.1.4.
@@ -38,11 +40,7 @@ export function LogStream({ records }: { records: LogRecord[] }) {
 
   return (
     <>
-      <div className="mt-10 flex items-center justify-between gap-4 font-mono text-xs text-muted">
-        <p className="hidden md:block">
-          Tab into the log, then <kbd className="border border-rule px-1.5 py-0.5 text-fg">j</kbd>{" "}
-          <kbd className="border border-rule px-1.5 py-0.5 text-fg">k</kbd> to step through records
-        </p>
+      <div className="mt-8 flex border-b border-rule pb-6 font-mono text-xs">
         <button
           type="button"
           onClick={replay}
@@ -51,12 +49,6 @@ export function LogStream({ records }: { records: LogRecord[] }) {
           <ArrowCounterClockwise size={14} />
           Replay from offset 0
         </button>
-      </div>
-
-      <div className="mt-6 hidden grid-cols-12 gap-8 border-b border-rule pb-3 font-mono text-[11px] text-muted md:grid">
-        <span className="col-span-3">offset / time</span>
-        <span className="col-span-4">record</span>
-        <span className="col-span-5">payload</span>
       </div>
 
       <ol ref={listRef} key={run} onKeyDown={onKeyDown} className={run ? "replaying" : undefined}>
