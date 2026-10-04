@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Drafting paper (light) and ink (dark). One accent: amber. */
+:root {
+  --bg: #e8e6df;
+  --fg: #0e0f0c;
+  --muted: #5e635a;
+  --rule: #c9c6bc;
+  --plate: #e2e0d8;
+  --accent: #ffb000;
+  --accent-ink: #8a5a00; /* amber text, marks and focus on paper need more contrast */
+  /* Contribution ramp: each step darker than the last on paper. */
+  --heat-0: rgb(14 15 12 / 0.07);
+  --heat-1: #e9d29c;
+  --heat-2: #f2b93a;
+  --heat-3: #c98a00;
+  --heat-4: #8a5a00;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0e0f0c;
+  --fg: #e8e6df;
+  --muted: #8a8f84;
+  --rule: #2a2c27;
+  --plate: #161814;
+  --accent-ink: #ffb000;
+  /* On ink the ramp brightens instead. */
+  --heat-0: rgb(232 230 223 / 0.07);
+  --heat-1: #5c4300;
+  --heat-2: #9a6d00;
+  --heat-3: #d99600;
+  --heat-4: #ffb000;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-plate: var(--plate);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --font-display: var(--font-plex-cond);
+  --font-sans: var(--font-plex);
+  --font-mono: var(--font-commit);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    font-feature-settings: "ss02", "tnum";
+  }
+  ::selection {
+    background: var(--accent);
+    color: #0e0f0c;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent-ink);
+    outline-offset: 3px;
+  }
+}
+
+/* Hero name: types on in discrete ticks, one per glyph. */
+@keyframes tick-in {
+  from { clip-path: inset(-10% 100% -30% -5%); }
+  to { clip-path: inset(-10% -5% -30% -5%); }
+}
+.tick-in {
+  animation: tick-in var(--tick-dur, 0.9s) steps(var(--ticks, 12), end) both;
+  animation-delay: var(--tick-delay, 0s);
+}
+
+/* Log records stream in as they scroll into view (CSS only, visible without JS or support).
+   After Replay they re-enter in sequence. */
+@keyframes record-in {
+  from { opacity: 0; transform: translateY(16px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .record {
+      animation: record-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+  .replaying .record {
+    animation: record-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-timeline: auto;
+    animation-delay: calc(var(--i) * 80ms);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .tick-in { animation: none; }
+}
