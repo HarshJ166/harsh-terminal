@@ -194,9 +194,7 @@ export function PartitionPanel({ records }: { records: LogRecord[] }) {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {profile.booking && (
               <a
-                href={profile.booking}
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/book"
                 className="inline-flex h-11 items-center gap-2 border border-rule px-4 font-mono text-sm transition-colors hover:border-fg"
               >
                 <CalendarBlank size={16} />

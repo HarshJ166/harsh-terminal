@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, m, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react";
 import { GithubLogo, LinkedinLogo, List, X } from "@phosphor-icons/react";
 import { profile } from "@/content/profile";
@@ -20,6 +21,8 @@ export function Nav() {
   const [active, setActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
+  // Section anchors live on the home page; from other pages they navigate back to it.
+  const base = usePathname() === "/" ? "" : "/";
   const { scrollY, scrollYProgress } = useScroll();
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 24));
 
@@ -36,7 +39,7 @@ export function Nav() {
       if (el) io.observe(el);
     }
     return () => io.disconnect();
-  }, []);
+  }, [base]);
 
   useEffect(() => {
     if (!open) return;
@@ -54,7 +57,7 @@ export function Nav() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-4 px-4 md:px-8">
-        <a href="#top" className="inline-flex min-h-11 items-center font-display text-xl font-semibold tracking-tight">
+        <a href={`${base}#top`} className="inline-flex min-h-11 items-center font-display text-xl font-semibold tracking-tight">
           Harsh Jajal<span className="text-accent">.</span>
         </a>
 
@@ -64,7 +67,7 @@ export function Nav() {
             return (
               <a
                 key={i.id}
-                href={`#${i.id}`}
+                href={`${base}#${i.id}`}
                 aria-current={on ? "location" : undefined}
                 className={`relative inline-flex h-11 items-center px-3.5 text-sm transition-colors ${on ? "text-fg" : "text-muted hover:text-fg"}`}
               >
@@ -128,7 +131,7 @@ export function Nav() {
             {items.map((i) => (
               <a
                 key={i.id}
-                href={`#${i.id}`}
+                href={`${base}#${i.id}`}
                 onClick={() => setOpen(false)}
                 className="flex min-h-14 items-center justify-between border-b border-rule font-display text-3xl font-semibold tracking-tight"
               >
