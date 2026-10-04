@@ -82,7 +82,7 @@ export const log: LogRecord[] = [
     tag: "nyaya",
     current: true,
     payload: [
-      ["domain", "Legal-tech platform"],
+      ["domain", "Legal tech: AI solutions for lawyers"],
       ["building", "Distributed, event-driven services"],
       ["stack", "Go, Kafka, Auth0"],
     ],

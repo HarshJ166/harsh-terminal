@@ -28,7 +28,7 @@ export default async function OpengraphImage() {
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 150, fontWeight: 600, letterSpacing: -4, lineHeight: 0.95 }}>{profile.name}</div>
           <div style={{ display: "flex", marginTop: 30, fontSize: 40, color: "#8a8f84" }}>
-            {profile.role} at {profile.company}. Go, Kafka, Next.js.
+            {profile.role} at {profile.company}. AI solutions for lawyers.
           </div>
         </div>
         <div style={{ display: "flex", height: 6, width: 220, background: "#ffb000" }} />
