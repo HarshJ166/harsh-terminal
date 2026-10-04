@@ -2,10 +2,11 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, m, useReducedMotion } from "motion/react";
-import { ArrowCounterClockwise, CalendarBlank, PaperPlaneTilt, Plus } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, CalendarBlank, CheckCircle, PaperPlaneTilt, Plus } from "@phosphor-icons/react";
 import type { LogRecord } from "@/content/log";
 import { gmailHref } from "@/lib/mail";
 import { profile } from "@/content/profile";
+import { sendContact } from "@/lib/contact";
 
 const hex = (n: number) => `0x${n.toString(16).padStart(2, "0")}`;
 const GAP = 6; // px between cells; the consumer bar math below depends on it
@@ -13,7 +14,7 @@ const GAP = 6; // px between cells; the consumer bar math below depends on it
 type Cell = { offset: number; tag: string; ts: string; title: string; org: string; payload: [string, string][]; current?: boolean };
 
 // The career as records in a Kafka partition. Visitors read records by hovering or tapping,
-// and can append their own, which turns into a Gmail draft addressed to me.
+// and can append their own, then send it (stored in my Google Sheet via /api/contact).
 export function PartitionPanel({ records }: { records: LogRecord[] }) {
   const base: Cell[] = records.map((r) => ({
     offset: r.offset,
@@ -27,6 +28,7 @@ export function PartitionPanel({ records }: { records: LogRecord[] }) {
   const [mine, setMine] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [sel, setSel] = useState(base.length - 1);
+  const [delivery, setDelivery] = useState<{ status: "idle" | "sending" | "sent" | "error"; error?: string }>({ status: "idle" });
   const inputRef = useRef<HTMLInputElement>(null);
   const reduce = useReducedMotion();
 
@@ -43,8 +45,16 @@ export function PartitionPanel({ records }: { records: LogRecord[] }) {
     setMine(text);
     setSel(base.length);
   };
+  const deliver = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
+    setDelivery({ status: "sending" });
+    const error = await sendContact({ name: data.name, email: data.email, website: data.website, message: mine ?? "", source: "hero" });
+    setDelivery(error ? { status: "error", error } : { status: "sent" });
+  };
   const reset = () => {
     setMine(null);
+    setDelivery({ status: "idle" });
     setDraft("");
     setSel(base.length - 1);
     requestAnimationFrame(() => inputRef.current?.focus());
@@ -133,36 +143,71 @@ export function PartitionPanel({ records }: { records: LogRecord[] }) {
         </AnimatePresence>
       </div>
 
-      {mine && (
-        <div className="mt-4 flex min-h-[5.75rem] flex-wrap items-end gap-2 border-t border-rule pt-4">
-          <a
-            href={gmailHref("Hello from your portfolio", mine)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-11 items-center gap-2 bg-accent px-4 font-mono text-sm text-bg transition-transform active:translate-y-px"
-          >
-            <PaperPlaneTilt size={16} />
-            Send it to my inbox
-          </a>
-          {profile.calendly && (
-            <a
-              href={profile.calendly}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-11 items-center gap-2 border border-rule px-4 font-mono text-sm transition-colors hover:border-fg"
-            >
-              <CalendarBlank size={16} />
-              Book a call
-            </a>
+      {mine && delivery.status !== "sent" && (
+        <form onSubmit={deliver} className="mt-4 grid gap-3 border-t border-rule pt-4">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="grid gap-1.5">
+              <label htmlFor="hp-name" className="text-sm">
+                Your name
+              </label>
+              <input id="hp-name" name="name" autoComplete="name" maxLength={100} className="h-11 border border-rule bg-bg px-3 text-sm focus:border-accent focus:outline-none" />
+            </div>
+            <div className="grid gap-1.5">
+              <label htmlFor="hp-email" className="text-sm">
+                Your email
+              </label>
+              <input id="hp-email" name="email" type="email" required autoComplete="email" maxLength={200} className="h-11 border border-rule bg-bg px-3 text-sm focus:border-accent focus:outline-none" />
+            </div>
+          </div>
+          <input name="website" tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] size-px opacity-0" />
+          {delivery.status === "error" && (
+            <p role="alert" className="text-sm text-accent">
+              {delivery.error}{" "}
+              <a href={gmailHref("Hello from your portfolio", mine)} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                Open Gmail
+              </a>
+            </p>
           )}
-          <button
-            type="button"
-            onClick={reset}
-            className="inline-flex h-11 items-center gap-2 px-3 text-sm text-muted hover:text-fg"
-          >
-            <ArrowCounterClockwise size={14} />
-            Start over
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="submit"
+              disabled={delivery.status === "sending"}
+              className="inline-flex h-11 items-center gap-2 bg-accent px-4 font-mono text-sm text-bg transition-transform active:translate-y-px disabled:opacity-60"
+            >
+              <PaperPlaneTilt size={16} />
+              {delivery.status === "sending" ? "Sending..." : "Send to Harsh"}
+            </button>
+            <button type="button" onClick={reset} className="inline-flex h-11 items-center gap-2 px-3 text-sm text-muted hover:text-fg">
+              <ArrowCounterClockwise size={14} />
+              Start over
+            </button>
+          </div>
+        </form>
+      )}
+
+      {mine && delivery.status === "sent" && (
+        <div className="mt-4 border-t border-rule pt-4" role="status">
+          <p className="flex items-center gap-2 text-sm">
+            <CheckCircle size={18} className="text-accent" />
+            Committed. I&apos;ll reply from {profile.email}.
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {profile.booking && (
+              <a
+                href={profile.booking}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-11 items-center gap-2 border border-rule px-4 font-mono text-sm transition-colors hover:border-fg"
+              >
+                <CalendarBlank size={16} />
+                Book a call
+              </a>
+            )}
+            <button type="button" onClick={reset} className="inline-flex h-11 items-center gap-2 px-3 text-sm text-muted hover:text-fg">
+              <ArrowCounterClockwise size={14} />
+              Append another
+            </button>
+          </div>
         </div>
       )}
 

@@ -30,11 +30,10 @@ export const profile = {
   company: "NyayAssist",
   summary:
     "Software engineer at NyayAssist. I build legal tech, bringing AI solutions to lawyers from the backend to the screen.",
-  email: "jajalharsh268@gmail.com",
+  email: "work.harsh268@gmail.com",
   location: { city: "Mumbai", country: "IN" },
   education: "Shah and Anchor Kutchhi Engineering College",
-  // Paste your Calendly link here. "Book a call" buttons stay hidden while this is empty.
-  calendly: "",
+  booking: "https://cal.com/harsh-work-olhivx/30min",
   github: "HarshJ166",
   links: [
     { label: "GitHub", href: "https://github.com/HarshJ166" },
